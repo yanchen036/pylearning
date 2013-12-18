@@ -5,7 +5,7 @@ import numpy as np
 from .base import LinearModel
 
 
-class LinearRegressionModel(LinearModel):
+class LinearRegression(LinearModel):
     def __init__(self, X, y, alpha=0.01, num_iters=100):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
@@ -33,7 +33,7 @@ class LinearRegressionModel(LinearModel):
     def gradient_descent(self):
         J_history = []
         for iter in range(0, self.num_iters):
-            self.theta = self.calc_gradient()
-            J_history.append(self.cost())
+            self.theta = self._calc_gradient()
+            J_history.append(self._cost())
 
         return [self.theta, J_history]
