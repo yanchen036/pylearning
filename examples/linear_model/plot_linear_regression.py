@@ -37,5 +37,8 @@ y_test = []
 for x in X_test:
     y_test.append(model.predict(np.matrix(x))[0,0])
 pl.plot(X_test, y_test, linewidth=1)
-pl.show()
 
+pl.figure(2, figsize=(8, 6))
+iter = range(1, J_history.__len__() + 1)
+pl.plot(iter, J_history, color='green', linewidth=1)
+pl.show()
