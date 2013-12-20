@@ -31,11 +31,11 @@ mat_y = np.matrix(y)
 mat_y = mat_y.reshape((col_y, row_y))
 
 model = LinearRegression(mat_x, mat_y, alpha=0.01)
-[theta, J_history] = model.gradient_descent()
+J_history = model.fit()
 X_test = np.linspace(0, 20, 20)
 y_test = []
 for x in X_test:
-    y_test.append(theta[0, 0] + theta[0, 1] * x)
+    y_test.append(model.predict(np.matrix(x))[0,0])
 pl.plot(X_test, y_test, linewidth=1)
 pl.show()
 

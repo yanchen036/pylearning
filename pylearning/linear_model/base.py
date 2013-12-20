@@ -6,6 +6,6 @@ class LinearModel():
     def fit(self):
         pass
 
-    def predict(X):
-        pass;
+    def predict(self, X):
+        pass
 

@@ -30,10 +30,16 @@ class LinearRegression(LinearModel):
                 * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col])))
         return new_theta
 
-    def gradient_descent(self):
+    def fit(self):
         J_history = []
         for iter in range(0, self.num_iters):
             self.theta = self._calc_gradient()
             J_history.append(self._cost())
 
-        return [self.theta, J_history]
+        return J_history
+
+    def predict(self, X):
+        assert isinstance(X, np.matrix)
+        assert X.shape[1] == self.m
+        X_plus = np.append(np.ones((X.shape[0], 1)), X, 1)
+        return X_plus * self.theta.T
