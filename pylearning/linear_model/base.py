@@ -8,4 +8,3 @@ class LinearModel():
 
     def predict(self, X):
         pass
-

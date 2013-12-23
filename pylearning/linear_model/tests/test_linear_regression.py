@@ -3,7 +3,7 @@ import numpy as np
 
 from pylearning.linear_model.linear_regression import LinearRegression
 
-class LinearRegressionModelTestCase(unittest.TestCase):
+class LinearRegressionTestCase(unittest.TestCase):
     def setUp(self):
         # y = 2x-1
         x = np.matrix('1;0;2')
@@ -36,11 +36,13 @@ class LinearRegressionModelTestCase(unittest.TestCase):
         self.assertAlmostEqual(y[0, 0], 5., delta=0.1)
 
 if __name__ == '__main__':
-    suite = unittest.TestSuite()
-    suite.addTest(LinearRegressionModelTestCase('test_cost'))
-    suite.addTest(LinearRegressionModelTestCase('test_calc_gradient'))
-    suite.addTest(LinearRegressionModelTestCase('test_fit'))
-    suite.addTest(LinearRegressionModelTestCase('test_predict'))
+    #suite = unittest.TestSuite()
+    #suite.addTest(LinearRegressionTestCase('test_cost'))
+    #suite.addTest(LinearRegressionTestCase('test_calc_gradient'))
+    #suite.addTest(LinearRegressionTestCase('test_fit'))
+    #suite.addTest(LinearRegressionTestCase('test_predict'))
 
-    runner = unittest.TextTestRunner()
-    runner.run(suite)
+    #runner = unittest.TextTestRunner()
+    #runner.run(suite)
+
+    unittest.main()

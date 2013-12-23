@@ -6,6 +6,7 @@ import numpy as np
 import pylab as pl
 
 from pylearning.linear_model.linear_regression import LinearRegression
+from pylearning.linear_model.utility import normalize
 
 pl.figure(1, figsize=(8, 6))
 pl.clf()
@@ -18,7 +19,6 @@ for x in range(1, 20, 1):
     y.append(2 * x - 1.0 + random.gauss(0, 2))
     X.append(float(x) + 0.5)
     y.append(2 * (float(x) + 0.5) - 1.0 + random.gauss(0, 2))
-
 pl.scatter(X, y, color='red', marker='x')
 pl.ylabel('y')
 pl.xlabel('x')
@@ -29,8 +29,9 @@ mat_x = mat_x.reshape((col_x, row_x))
 mat_y = np.matrix(y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
+pl.scatter(np.asarray(normalize(mat_x)), np.asarray(mat_y), color='green', marker='o')
 
-model = LinearRegression(mat_x, mat_y, alpha=0.01)
+model = LinearRegression(normalize(mat_x), mat_y, alpha=0.05)
 J_history = model.fit()
 X_test = np.linspace(0, 20, 20)
 y_test = []
