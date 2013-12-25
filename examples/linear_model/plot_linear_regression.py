@@ -29,7 +29,7 @@ mat_x = mat_x.reshape((col_x, row_x))
 mat_y = np.matrix(y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
-pl.scatter(np.asarray(normalize(mat_x)), np.asarray(mat_y), color='green', marker='o')
+pl.scatter(np.asarray(normalize(mat_x)), np.asarray(mat_y), color='green', marker='+')
 
 model = LinearRegression(normalize(mat_x), mat_y, alpha=0.05)
 J_history = model.fit()
