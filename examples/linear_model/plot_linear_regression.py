@@ -31,7 +31,7 @@ mat_y = np.matrix(y)
 mat_y = mat_y.reshape((col_y, row_y))
 pl.scatter(np.asarray(normalize(mat_x)), np.asarray(mat_y), color='green', marker='+')
 
-model = LinearRegression(normalize(mat_x), mat_y, alpha=0.05)
+model = LinearRegression(normalize(mat_x), mat_y, alpha=0.05, num_iters=30)
 J_history = model.fit()
 X_test = np.linspace(0, 20, 20)
 y_test = []

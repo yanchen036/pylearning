@@ -24,6 +24,8 @@ class LogisticRegression(LinearModel):
 
     def _cost(self):
         hx = self.X * self.theta.T
+        for i in range(0, hx.shape[0]):
+            hx[i, 0] = self._sigmoid(hx[i, 0])
         J = 0.0
         for i in range(0, self.n):
             J += self.y[i, 0] * math.log(hx[i, 0]) + (1.0 - self.y[i, 0] * math.log(1.0 - hx[i, 0]))
@@ -32,15 +34,23 @@ class LogisticRegression(LinearModel):
 
     def _calc_gradient(self):
         hx = self.X * self.theta.T
+        for i in range(0, hx.shape[0]):
+            hx[i, 0] = self._sigmoid(hx[i, 0])
         new_theta = np.zeros((1, self.m + 1))
         for col in range(0, self.m + 1):
             new_theta[0, col] = self.theta[0, col] - self.alpha / self.n \
-                                * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col])))
+                * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col])))
         return new_theta
 
-
     def fit(self):
-        pass
+        J_history = []
+        for iter in range(0, self.num_iters):
+            self.theta = self._calc_gradient()
+            J_history.append(self._cost())
+        return J_history
 
     def predict(self, X):
-        pass
+        assert isinstance(X, np.matrix)
+        assert X.shape[1] == self.m
+        X_plus = np.append(np.ones((X.shape[0], 1)), X, 1)
+        return self._sigmoid(X_plus * self.theta.T)
