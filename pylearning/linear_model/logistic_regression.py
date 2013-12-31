@@ -8,7 +8,28 @@ from .base import LinearModel
 
 
 class LogisticRegression(LinearModel):
-    def __init__(self, X, y, alpha=0.01, num_iters=100):
+    '''
+    Parameters
+    ----------
+    X: array-like
+        training set, shape = [n_samples, n_features]
+
+    y: array-like
+        lables, shape = [n_samples, 1]
+
+    alpha: float
+        gradient descent step length
+
+    num_iters: int
+        iteration numbers
+
+    penalty: string, 'l1' or 'l2'
+        specify the norm
+
+    C: float
+        inverse of the regularization strength
+    '''
+    def __init__(self, X, y, penalty='l2', C=1.0, alpha=0.01, num_iters=100):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
         # n is number of samples, m is the dimension of feature
