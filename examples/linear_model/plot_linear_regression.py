@@ -29,14 +29,13 @@ mat_x = mat_x.reshape((col_x, row_x))
 mat_y = np.matrix(y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
-pl.scatter(np.asarray(normalize(mat_x)), np.asarray(mat_y), color='green', marker='+')
 
-model = LinearRegression(normalize(mat_x), mat_y, alpha=0.05, num_iters=30)
+model = LinearRegression(mat_x, mat_y, alpha=0.001, num_iters=100)
 J_history = model.fit()
 X_test = np.linspace(0, 20, 20)
 y_test = []
 for x in X_test:
-    y_test.append(model.predict(np.matrix(x))[0,0])
+    y_test.append(model.predict(np.matrix(x))[0, 0])
 pl.plot(X_test, y_test, linewidth=1)
 
 pl.figure(2, figsize=(8, 6))
