@@ -35,7 +35,7 @@ mat_y = np.matrix(arr_y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
 
-model = LogisticRegression(mat_x, mat_y, alpha=0.2, num_iters=200)
+model = LogisticRegression(mat_x, mat_y, alpha=0.2, Lambda=1.0, num_iters=100)
 J_history = model.fit()
 print model.theta
 X_test = np.linspace(0, 10, 10)
