@@ -20,8 +20,8 @@ class LogisticRegression(LinearModel):
     alpha: float
         gradient descent step length
 
-    num_iters: int
-        iteration numbers
+    max_iterations: int
+        max iteration numbers
 
     penalty: string, 'l1' or 'l2'
         specify the norm
@@ -29,7 +29,7 @@ class LogisticRegression(LinearModel):
     Lambda: float
         regularization strength
     '''
-    def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, num_iters=100):
+    def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, max_iterations=200):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
         # n is number of samples, m is the dimension of feature
@@ -40,9 +40,14 @@ class LogisticRegression(LinearModel):
         self.penalty = penalty
         self.Lambda = Lambda
         self.alpha = alpha
-        self.num_iters = num_iters
+        self.max_iterations = max_iterations
 
     def _sigmoid(self, z):
+        # avoid large number
+        if (z <= -20.0):
+            z = -20.0
+        if (z >= 30.0):
+            z = 30.0
         return 1.0 / (1 + math.exp(-z))
 
     def _cost(self):
@@ -51,7 +56,10 @@ class LogisticRegression(LinearModel):
             hx[i, 0] = self._sigmoid(hx[i, 0])
         J = 0.0
         for i in range(0, self.n):
-            #TODO avoid this assert, may need another rule to stop the iteration
+            if (hx[i, 0] <= 0.0):
+                hx[i, 0] = 1e-6
+            elif (hx[i, 0] >= 1.0):
+                hx[i, 0] =0.999999
             assert hx[i, 0] > 0
             assert 1.0 - hx[i, 0] > 0
             J += self.y[i, 0] * math.log(hx[i, 0]) + (1.0 - self.y[i, 0]) * math.log(1.0 - hx[i, 0])
@@ -76,10 +84,14 @@ class LogisticRegression(LinearModel):
 
     def fit(self):
         J_history = []
-        for iter in range(0, self.num_iters):
-            print 'iter: %d' % iter
+        for iter in range(0, self.max_iterations):
             self.theta = self._calc_gradient()
             J_history.append(self._cost())
+            if (iter >= 1):
+                diff = J_history[-1] - J_history[-2]
+                if (math.fabs(diff) < 1e-3 or diff > 0):
+                    print diff
+                    break
         return J_history
 
     def predict(self, X):

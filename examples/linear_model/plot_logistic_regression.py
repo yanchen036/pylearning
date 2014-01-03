@@ -35,9 +35,9 @@ mat_y = np.matrix(arr_y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
 
-model = LogisticRegression(mat_x, mat_y, alpha=0.2, Lambda=1.0, num_iters=100)
+model = LogisticRegression(mat_x, mat_y, alpha=0.05, Lambda=2.0, max_iterations=200)
 J_history = model.fit()
-print model.theta
+print J_history.__len__()
 X_test = np.linspace(0, 10, 10)
 y_test = []
 for x in X_test:
