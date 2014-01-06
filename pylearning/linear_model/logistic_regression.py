@@ -62,34 +62,30 @@ class LogisticRegression(LinearModel):
                 hx[i, 0] =0.999999
             assert hx[i, 0] > 0
             assert 1.0 - hx[i, 0] > 0
+
             J += self.y[i, 0] * math.log(hx[i, 0]) + (1.0 - self.y[i, 0]) * math.log(1.0 - hx[i, 0])
-        J *= -1.0 / self.n + self.Lambda / (2.0 * self.n) * (self.theta * self.theta.T)[0, 0]
+        J = -1.0 / self.n * J + self.Lambda / (2.0 * self.n) * (self.theta * self.theta.T)[0, 0]
         return J
 
     def _calc_gradient(self):
         hx = self.X * self.theta.T
         for i in range(0, hx.shape[0]):
             hx[i, 0] = self._sigmoid(hx[i, 0])
-        new_theta = np.zeros((1, self.m + 1))
-        new_theta[0, 0] = self.theta[0, 0] - self.alpha / self.n \
-                * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, 0])))
+        grad = np.zeros((1, self.m + 1))
+        grad[0, 0] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, 0])))
         for col in range(1, self.m + 1):
-            new_theta[0, col] = self.theta[0, col] - self.alpha \
-                * (
-                    1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col])))
-                    -
-                    self.Lambda / self.n * self.theta[0, col]
-                )
-        return new_theta
+            grad[0, col] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col]))) \
+                           + self.Lambda / self.n * self.theta[0, col]
+        return grad
 
     def fit(self):
         J_history = []
         for iter in range(0, self.max_iterations):
-            self.theta = self._calc_gradient()
+            self.theta -= self.alpha * self._calc_gradient()
             J_history.append(self._cost())
             if (iter >= 1):
                 diff = J_history[-1] - J_history[-2]
-                if (math.fabs(diff) < 1e-3 or diff > 0):
+                if (math.fabs(diff) < 1e-6 or diff > 0):
                     print diff
                     break
         return J_history

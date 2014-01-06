@@ -14,20 +14,26 @@ x1 = []
 y1 = []
 x2 = []
 y2 = []
-for i in range(0, 20):
-    x1.append(random.gauss(3, 1.0))
-    y1.append(random.gauss(5, 1.6))
-    x2.append(random.gauss(5, 0.3))
-    y2.append(random.gauss(3, 0.7))
-pl.scatter(x1, y1, color='red', marker='x')
-pl.scatter(x2, y2, color='blue', marker='+')
+
+data_fp = open('./data/lr_data1.txt')
+data = data_fp.readlines()
+for line in data:
+    [x, y, label] = line.strip().split(',')
+    if label == '0':
+        x1.append(float(x))
+        y1.append(float(y))
+    else:
+        x2.append(float(x))
+        y2.append(float(y))
+pl.scatter(x1, y1, color='yellow', marker='o')
+pl.scatter(x2, y2, color='black', marker='+')
 
 arr_x = []
 arr_y = []
-for i in range(0, 10):
+for i in range(0, x1.__len__()):
     arr_x.append([x1[i], y1[i]])
     arr_y.append(0)
-for i in range(0, 10):
+for i in range(0, x2.__len__()):
     arr_x.append([x2[i], y2[i]])
     arr_y.append(1)
 mat_x = np.matrix(arr_x)
@@ -35,10 +41,10 @@ mat_y = np.matrix(arr_y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
 
-model = LogisticRegression(mat_x, mat_y, alpha=0.05, Lambda=2.0, max_iterations=200)
+model = LogisticRegression(mat_x, mat_y, alpha=0.5, Lambda=0.0, max_iterations=100)
 J_history = model.fit()
 print J_history.__len__()
-X_test = np.linspace(0, 10, 10)
+X_test = np.linspace(30, 90, 60)
 y_test = []
 for x in X_test:
     y_test.append((-model.theta[0, 0] - model.theta[0, 1] * x) / model.theta[0, 2])
