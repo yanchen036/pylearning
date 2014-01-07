@@ -41,10 +41,12 @@ mat_y = np.matrix(arr_y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
 
-model = LogisticRegression(mat_x, mat_y, alpha=0.5, Lambda=0.0, max_iterations=100)
+# this case at least need 1000000 iterations
+model = LogisticRegression(mat_x, mat_y, alpha=0.001, Lambda=0.0, max_iterations=1000000, stop_diff=1e-9)
 J_history = model.fit()
 print J_history.__len__()
-X_test = np.linspace(30, 90, 60)
+print model.theta
+X_test = np.linspace(30, 100, 70)
 y_test = []
 for x in X_test:
     y_test.append((-model.theta[0, 0] - model.theta[0, 1] * x) / model.theta[0, 2])

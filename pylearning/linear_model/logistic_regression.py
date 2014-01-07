@@ -15,7 +15,13 @@ class LogisticRegression(LinearModel):
         training set, shape = [n_samples, n_features]
 
     y: array-like
-        lables, shape = [n_samples, 1]
+        labels, shape = [n_samples, 1]
+
+    penalty: string, 'l1' or 'l2'
+        specify the norm
+
+    Lambda: float
+        regularization strength
 
     alpha: float
         gradient descent step length
@@ -23,13 +29,10 @@ class LogisticRegression(LinearModel):
     max_iterations: int
         max iteration numbers
 
-    penalty: string, 'l1' or 'l2'
-        specify the norm
-
-    Lambda: float
-        regularization strength
+    stop_diff: float
+        when the last two costs' diff less than stop_diff, iterate stop
     '''
-    def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, max_iterations=200):
+    def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, max_iterations=200, stop_diff=1e-6):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
         # n is number of samples, m is the dimension of feature
@@ -41,6 +44,7 @@ class LogisticRegression(LinearModel):
         self.Lambda = Lambda
         self.alpha = alpha
         self.max_iterations = max_iterations
+        self.stop_diff = stop_diff
 
     def _sigmoid(self, z):
         # avoid large number
@@ -81,13 +85,12 @@ class LogisticRegression(LinearModel):
     def fit(self):
         J_history = []
         for iter in range(0, self.max_iterations):
+            if (iter >= self.max_iterations):
+                break
             self.theta -= self.alpha * self._calc_gradient()
             J_history.append(self._cost())
-            if (iter >= 1):
-                diff = J_history[-1] - J_history[-2]
-                if (math.fabs(diff) < 1e-6 or diff > 0):
-                    print diff
-                    break
+            if (iter > 0 and J_history[-1] - J_history[-2] <= self.stop_diff):
+                break
         return J_history
 
     def predict(self, X):
