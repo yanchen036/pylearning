@@ -1,4 +1,5 @@
-__author__ = 'yanchen036@gmail.com'
+# -*- coding: utf-8 -*-
+# yanchen036@gmail.com
 
 class LinearModel():
     '''base class for linear model'''
