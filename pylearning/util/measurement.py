@@ -1,16 +1,7 @@
 # -*- coding: utf-8 -*-
 # yanchen036@gmail.com
 
-import numpy as np
 
-def normalize(fea):
-    assert isinstance(fea, np.matrix)
-    mean = fea.mean(0)
-    std = fea.std(0)
-    new_fea = np.matrix(fea)
-    for row in range(0, fea.shape[0]):
-        new_fea[row] = (fea[row] - mean) / std
-    return new_fea
 
 '''struct stored predict value and ground truth value'''
 class pred_gnd():
@@ -44,3 +35,9 @@ def ROC(pg_arr):
         ret.append([tp_rate, fp_rate])
     ret.append([1.0, 1.0])
     return ret
+
+def AUC(roc):
+    auc = 0.0
+    for i in range(0, roc.__len__()):
+        auc += roc[i][0]
+    return auc / 100

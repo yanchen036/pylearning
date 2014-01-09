@@ -6,7 +6,6 @@ import numpy as np
 import pylab as pl
 
 from pylearning.linear_model.linear_regression import LinearRegression
-from pylearning.linear_model.utility import normalize
 
 pl.figure(1, figsize=(8, 6))
 pl.clf()
