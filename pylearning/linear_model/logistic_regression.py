@@ -35,7 +35,7 @@ class LogisticRegression(LinearModel):
     def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, max_iterations=200, stop_diff=1e-6):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
-        # n is number of samples, m is the dimension of feature
+        # n is number of samples, m is the dimension of features
         (self.n, self.m) = X.shape
         self.X = np.append(np.ones((self.n, 1)), X, 1)
         self.theta = np.zeros((1, self.m + 1))
