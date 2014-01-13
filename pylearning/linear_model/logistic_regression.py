@@ -23,16 +23,21 @@ class LogisticRegression(LinearModel):
     Lambda: float
         regularization strength
 
-    alpha: float
+    grad_descent: boolean
+        if true, use gradient descent, which is simple but much slower than other advanced optimization method,
+        such as BFGS for l2 and OWQN for l1
+        this option is just for efficiency compare
+
+    alpha: float, only for gradient descent use
         gradient descent step length
 
-    max_iterations: int
+    max_iterations: int, only for gradient descent use
         max iteration numbers
 
-    stop_diff: float
+    stop_diff: float,
         when the last two costs' diff less than stop_diff, iterate stop
     '''
-    def __init__(self, X, y, penalty='l2', Lambda=1.0, alpha=0.01, max_iterations=200, stop_diff=1e-6):
+    def __init__(self, X, y, penalty='l2', Lambda=1.0, grad_descent=False, alpha=0.01, max_iterations=200, stop_diff=1e-6):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
         # n is number of samples, m is the dimension of features
@@ -42,6 +47,7 @@ class LogisticRegression(LinearModel):
         self.y = y
         self.penalty = penalty
         self.Lambda = Lambda
+        self.grad_descent = grad_descent
         self.alpha = alpha
         self.max_iterations = max_iterations
         self.stop_diff = stop_diff
@@ -63,7 +69,7 @@ class LogisticRegression(LinearModel):
             if (hx[i, 0] <= 0.0):
                 hx[i, 0] = 1e-6
             elif (hx[i, 0] >= 1.0):
-                hx[i, 0] =0.999999
+                hx[i, 0] = 0.999999
             assert hx[i, 0] > 0
             assert 1.0 - hx[i, 0] > 0
 
