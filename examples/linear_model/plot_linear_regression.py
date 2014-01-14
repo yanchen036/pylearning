@@ -29,8 +29,8 @@ mat_y = np.matrix(y)
 (row_y, col_y) = mat_y.shape
 mat_y = mat_y.reshape((col_y, row_y))
 
-model = LinearRegression(mat_x, mat_y, alpha=0.001, num_iters=100)
-J_history = model.fit()
+model = LinearRegression(mat_x, mat_y)
+J_history = model.gd_fit(alpha=0.001, max_iterations=500)
 X_test = np.linspace(0, 20, 20)
 y_test = []
 for x in X_test:

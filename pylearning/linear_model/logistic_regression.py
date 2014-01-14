@@ -3,6 +3,7 @@
 
 import math
 import numpy as np
+import scipy as sp
 
 from .base import LinearModel
 
@@ -22,22 +23,8 @@ class LogisticRegression(LinearModel):
 
     Lambda: float
         regularization strength
-
-    grad_descent: boolean
-        if true, use gradient descent, which is simple but much slower than other advanced optimization method,
-        such as BFGS for l2 and OWQN for l1
-        this option is just for efficiency compare
-
-    alpha: float, only for gradient descent use
-        gradient descent step length
-
-    max_iterations: int, only for gradient descent use
-        max iteration numbers
-
-    stop_diff: float,
-        when the last two costs' diff less than stop_diff, iterate stop
     '''
-    def __init__(self, X, y, penalty='l2', Lambda=1.0, grad_descent=False, alpha=0.01, max_iterations=200, stop_diff=1e-6):
+    def __init__(self, X, y, penalty='l2', Lambda=1.0):
         assert isinstance(X, np.matrix)
         assert isinstance(y, np.matrix)
         # n is number of samples, m is the dimension of features
@@ -47,10 +34,6 @@ class LogisticRegression(LinearModel):
         self.y = y
         self.penalty = penalty
         self.Lambda = Lambda
-        self.grad_descent = grad_descent
-        self.alpha = alpha
-        self.max_iterations = max_iterations
-        self.stop_diff = stop_diff
 
     def _sigmoid(self, z):
         # avoid large number
@@ -88,14 +71,32 @@ class LogisticRegression(LinearModel):
                            + self.Lambda / self.n * self.theta[0, col]
         return grad
 
-    def fit(self):
+    def fit(self, max_iter=None):
+        if (self.penalty == 'l2'):
+            sp.optimize.fmin_bfgs(self._cost(), self._calc_gradient())
+        # if not l2, treated as l1
+        else:
+            pass
+
+    '''gradient descent fit'''
+    def gd_fit(self, alpha=0.01, max_iter=200, stop_diff=1e-6):
+        '''
+        alpha: float, only for gradient descent use
+            gradient descent step length
+
+        max_iterations: int, only for gradient descent use
+            max iteration numbers
+
+        stop_diff: float,
+            when the last two costs' diff less than stop_diff, iterate stop
+        '''
         J_history = []
-        for iter in range(0, self.max_iterations):
-            if (iter >= self.max_iterations):
+        for iter in range(0, max_iter):
+            if (iter >= max_iter):
                 break
-            self.theta -= self.alpha * self._calc_gradient()
+            self.theta -= alpha * self._calc_gradient()
             J_history.append(self._cost())
-            if (iter > 0 and J_history[-1] - J_history[-2] <= self.stop_diff):
+            if (iter > 0 and J_history[-1] - J_history[-2] <= stop_diff):
                 break
         return J_history
 
