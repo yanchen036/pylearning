@@ -42,8 +42,9 @@ mat_y = np.matrix(arr_y)
 mat_y = mat_y.reshape((col_y, row_y))
 
 # this case at least need 1000000 iterations
-model = LogisticRegression(mat_x, mat_y, alpha=0.001, Lambda=0.0, max_iterations=1000000, stop_diff=1e-9)
-J_history = model.fit()
+model = LogisticRegression(mat_x, mat_y, Lambda=1.0)
+'''
+J_history = model.gd_fit(alpha=0.0001, max_iter=10, stop_diff=1e-9)
 print J_history.__len__()
 print model.theta
 X_test = np.linspace(30, 100, 70)
@@ -56,3 +57,6 @@ pl.figure(2, figsize=(8, 6))
 iter = range(1, J_history.__len__() + 1)
 pl.plot(iter, J_history, color='green', linewidth=1)
 pl.show()
+'''
+model.fit(max_iter=100)
+print model.theta

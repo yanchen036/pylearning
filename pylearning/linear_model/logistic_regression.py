@@ -3,7 +3,7 @@
 
 import math
 import numpy as np
-import scipy as sp
+import scipy.optimize
 
 from .base import LinearModel
 
@@ -43,7 +43,7 @@ class LogisticRegression(LinearModel):
             z = 30.0
         return 1.0 / (1 + math.exp(-z))
 
-    def _cost(self):
+    def _cost(self, x):
         hx = self.X * self.theta.T
         for i in range(0, hx.shape[0]):
             hx[i, 0] = self._sigmoid(hx[i, 0])
@@ -60,6 +60,7 @@ class LogisticRegression(LinearModel):
         J = -1.0 / self.n * J + self.Lambda / (2.0 * self.n) * (self.theta * self.theta.T)[0, 0]
         return J
 
+    '''gradient descent will call this function'''
     def _calc_gradient(self):
         hx = self.X * self.theta.T
         for i in range(0, hx.shape[0]):
@@ -71,9 +72,27 @@ class LogisticRegression(LinearModel):
                            + self.Lambda / self.n * self.theta[0, col]
         return grad
 
+    '''bfgs will call this function'''
+    def _fprime(self, *args):
+        theta = np.ndarray(args[0])
+        hx = self.X * theta.T
+        for i in range(0, hx.shape[0]):
+            hx[i, 0] = self._sigmoid(hx[i, 0])
+        grad = np.zeros((1, self.m + 1))
+        grad[0, 0] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, 0])))
+        for col in range(1, self.m + 1):
+            grad[0, col] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col]))) \
+                           + self.Lambda / self.n * self.theta[0, col]
+        return grad
+
     def fit(self, max_iter=None):
         if (self.penalty == 'l2'):
-            sp.optimize.fmin_bfgs(self._cost(), self._calc_gradient())
+            [xopt, fopt, gopt, bopt, func, grad_calls, warnflag] = \
+                scipy.optimize.fmin_bfgs(self._cost(), np.zeros((1, self.m + 1)), fprime=self._calc_gradient(), args=(), maxiter=max_iter)
+            print 'low cost: %f, func calls: %d' % (fopt, func)
+            flatten_theta = xopt.flatten()
+            for idx in range(0, self.m + 1):
+                self.theta[0, idx] = flatten_theta[idx]
         # if not l2, treated as l1
         else:
             pass
@@ -96,7 +115,8 @@ class LogisticRegression(LinearModel):
                 break
             self.theta -= alpha * self._calc_gradient()
             J_history.append(self._cost())
-            if (iter > 0 and J_history[-1] - J_history[-2] <= stop_diff):
+            if (iter > 0 and J_history[-2] - J_history[-1] <= stop_diff):
+                print 'objective function value descent less than stop_diff or less than 0'
                 break
         return J_history
 
