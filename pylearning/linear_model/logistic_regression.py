@@ -8,6 +8,44 @@ import scipy.optimize
 from .base import LinearModel
 
 
+'''bfgs will call this function'''
+def _obj_func(x0, *args):
+    assert isinstance(x0, np.ndarray)
+    theta = np.asmatrix(x0)
+    lr = args[0]
+    assert isinstance(lr, LogisticRegression)
+    hx = lr.X * theta.T
+    for i in range(0, hx.shape[0]):
+        hx[i, 0] = lr._sigmoid(hx[i, 0])
+    J = 0.0
+    for i in range(0, lr.n):
+        if (hx[i, 0] <= 0.0):
+            hx[i, 0] = 1e-9
+        elif (hx[i, 0] >= 1.0):
+            hx[i, 0] = 0.999999
+        assert hx[i, 0] > 0
+        assert 1.0 - hx[i, 0] > 0
+
+        J += lr.y[i, 0] * math.log(hx[i, 0]) + (1.0 - lr.y[i, 0]) * math.log(1.0 - hx[i, 0])
+    J = -1.0 / lr.n * J + lr.Lambda / (2.0 * lr.n) * (theta * theta.T)[0, 0]
+    return J
+
+'''bfgs will call this function'''
+def _fprime(x0, *args):
+    assert isinstance(x0, np.ndarray)
+    theta = np.asmatrix(x0)
+    lr = args[0]
+    assert isinstance(lr, LogisticRegression)
+    hx = lr.X * theta.T
+    for i in range(0, hx.shape[0]):
+        hx[i, 0] = lr._sigmoid(hx[i, 0])
+    grad = np.zeros((1, lr.m + 1))
+    grad[0, 0] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, 0])))
+    for col in range(1, lr.m + 1):
+        grad[0, col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) \
+                       + lr.Lambda / lr.n * theta[0, col]
+    return grad.T
+
 class LogisticRegression(LinearModel):
     '''
     Parameters
@@ -43,14 +81,15 @@ class LogisticRegression(LinearModel):
             z = 30.0
         return 1.0 / (1 + math.exp(-z))
 
-    def _cost(self, x):
+    '''gradient descent will call this function'''
+    def _cost(self):
         hx = self.X * self.theta.T
         for i in range(0, hx.shape[0]):
             hx[i, 0] = self._sigmoid(hx[i, 0])
         J = 0.0
         for i in range(0, self.n):
             if (hx[i, 0] <= 0.0):
-                hx[i, 0] = 1e-6
+                hx[i, 0] = 1e-9
             elif (hx[i, 0] >= 1.0):
                 hx[i, 0] = 0.999999
             assert hx[i, 0] > 0
@@ -72,23 +111,10 @@ class LogisticRegression(LinearModel):
                            + self.Lambda / self.n * self.theta[0, col]
         return grad
 
-    '''bfgs will call this function'''
-    def _fprime(self, *args):
-        theta = np.ndarray(args[0])
-        hx = self.X * theta.T
-        for i in range(0, hx.shape[0]):
-            hx[i, 0] = self._sigmoid(hx[i, 0])
-        grad = np.zeros((1, self.m + 1))
-        grad[0, 0] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, 0])))
-        for col in range(1, self.m + 1):
-            grad[0, col] = 1.0 / self.n * np.sum((np.asarray(hx - self.y) * np.asarray(self.X[:, col]))) \
-                           + self.Lambda / self.n * self.theta[0, col]
-        return grad
-
     def fit(self, max_iter=None):
         if (self.penalty == 'l2'):
             [xopt, fopt, gopt, bopt, func, grad_calls, warnflag] = \
-                scipy.optimize.fmin_bfgs(self._cost(), np.zeros((1, self.m + 1)), fprime=self._calc_gradient(), args=(), maxiter=max_iter)
+                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), maxiter=max_iter)
             print 'low cost: %f, func calls: %d' % (fopt, func)
             flatten_theta = xopt.flatten()
             for idx in range(0, self.m + 1):
