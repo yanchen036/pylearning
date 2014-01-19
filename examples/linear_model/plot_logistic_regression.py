@@ -58,5 +58,5 @@ iter = range(1, J_history.__len__() + 1)
 pl.plot(iter, J_history, color='green', linewidth=1)
 pl.show()
 '''
-model.fit(max_iter=100)
+model.fit(max_iter=500)
 print model.theta

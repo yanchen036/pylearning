@@ -39,12 +39,12 @@ def _fprime(x0, *args):
     hx = lr.X * theta.T
     for i in range(0, hx.shape[0]):
         hx[i, 0] = lr._sigmoid(hx[i, 0])
-    grad = np.zeros((1, lr.m + 1))
-    grad[0, 0] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, 0])))
+    grad = np.zeros(x0.shape, x0.dtype)
+    grad[0] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, 0])))
     for col in range(1, lr.m + 1):
-        grad[0, col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) \
+        grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) \
                        + lr.Lambda / lr.n * theta[0, col]
-    return grad.T
+    return grad
 
 class LogisticRegression(LinearModel):
     '''
@@ -113,8 +113,8 @@ class LogisticRegression(LinearModel):
 
     def fit(self, max_iter=None):
         if (self.penalty == 'l2'):
-            [xopt, fopt, gopt, bopt, func, grad_calls, warnflag] = \
-                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), maxiter=max_iter)
+            xopt, fopt, gopt, bopt, func, grad_calls, warnflag = \
+                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), maxiter=max_iter, full_output=1)
             print 'low cost: %f, func calls: %d' % (fopt, func)
             flatten_theta = xopt.flatten()
             for idx in range(0, self.m + 1):
