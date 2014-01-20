@@ -2,6 +2,8 @@ import unittest
 import numpy as np
 
 from pylearning.linear_model.logistic_regression import LogisticRegression
+from pylearning.linear_model.logistic_regression import _fprime
+from pylearning.linear_model.logistic_regression import _obj_func
 
 
 class LogisticRegressionTestCase(unittest.TestCase):
@@ -32,6 +34,21 @@ class LogisticRegressionTestCase(unittest.TestCase):
         self.assertEqual(grad[0, 0], 0.3149900749012493)
         # 1.0/3*(((1/(1+exp(-3.0)))-1.0)*1 + ((1/(1+exp(-5.0)))-0.0)*2 + ((1/(1+exp(-7.0)))-1.0)*3) + 1.0/3*2 = 1.3121517571302206
         self.assertEqual(grad[0, 1], 1.3121517571302206)
+
+    def test_obj_func(self):
+        self.model.theta = np.matrix('1,2')
+        self.model.Lambda = 0.0
+        # -1.0 / 3 * (log(1/(1+exp(-3.0))) + log(1.0-1/(1+exp(-5.0))) + log(1/(1+exp(-7.0)))) = 1.6854047221722177
+        self.assertEqual(_obj_func(np.array([1.0,2.0]), self.model), 1.6854047221722177)
+        self.model.Lambda = 1.0
+        self.assertEqual(_obj_func(np.array([1.0,2.0]), self.model), 2.518738055505551)
+
+    def test_fprime(self):
+        self.model.theta = np.matrix('1,2')
+        self.model.Lambda = 1.0
+        grad = _fprime(np.array([1.0,2.0]), self.model)
+        self.assertEqual(grad[0], 0.3149900749012493)
+        self.assertEqual(grad[1], 1.3121517571302206)
 
 if __name__ == '__main__':
     unittest.main()

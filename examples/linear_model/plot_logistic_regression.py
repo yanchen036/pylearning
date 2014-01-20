@@ -58,5 +58,11 @@ iter = range(1, J_history.__len__() + 1)
 pl.plot(iter, J_history, color='green', linewidth=1)
 pl.show()
 '''
-model.fit(max_iter=500)
+model.fit(max_iter=50)
 print model.theta
+X_test = np.linspace(30, 100, 70)
+y_test = []
+for x in X_test:
+    y_test.append((-model.theta[0, 0] - model.theta[0, 1] * x) / model.theta[0, 2])
+pl.plot(X_test, y_test, linewidth=1)
+pl.show()
