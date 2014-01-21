@@ -113,7 +113,7 @@ class LogisticRegression(LinearModel):
     def fit(self, max_iter=None):
         if (self.penalty == 'l2'):
             xopt, fopt, gopt, bopt, func, grad_calls, warnflag, allvecs = \
-                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), norm=2, maxiter=max_iter, full_output=1, retall=1)
+                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), maxiter=max_iter, full_output=1, retall=1)
             print 'low cost: %f, func calls: %d' % (fopt, func)
             flatten_theta = xopt.flatten()
             for idx in range(0, self.m + 1):

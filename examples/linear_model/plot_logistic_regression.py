@@ -43,8 +43,7 @@ mat_y = mat_y.reshape((col_y, row_y))
 
 # this case at least need 1000000 iterations
 model = LogisticRegression(mat_x, mat_y, Lambda=1.0)
-'''
-J_history = model.gd_fit(alpha=0.0001, max_iter=10, stop_diff=1e-9)
+J_history = model.gd_fit(alpha=0.0001, max_iter=1000, stop_diff=1e-9)
 print J_history.__len__()
 print model.theta
 X_test = np.linspace(30, 100, 70)
@@ -57,7 +56,13 @@ pl.figure(2, figsize=(8, 6))
 iter = range(1, J_history.__len__() + 1)
 pl.plot(iter, J_history, color='green', linewidth=1)
 pl.show()
-'''
+
+# use bgfs, it only cost 17 iterations
+pl.figure(2, figsize=(8, 6))
+pl.clf()
+pl.scatter(x1, y1, color='yellow', marker='o')
+pl.scatter(x2, y2, color='black', marker='+')
+model = LogisticRegression(mat_x, mat_y, Lambda=0.0)
 model.fit(max_iter=50)
 print model.theta
 X_test = np.linspace(30, 100, 70)

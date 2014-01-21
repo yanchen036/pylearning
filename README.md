@@ -1,4 +1,4 @@
 pylearning
 ==========
 
-a python machine learning lib, for practice and usage
+A python machine learning lib. Currently for practice only.
