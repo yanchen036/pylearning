@@ -4,7 +4,7 @@
 import math
 import numpy as np
 import scipy.optimize
-
+from ..util import owlqn
 from .base import LinearModel
 
 
@@ -14,6 +14,7 @@ def _obj_func(x0, *args):
     theta = np.asmatrix(x0)
     lr = args[0]
     assert isinstance(lr, LogisticRegression)
+    norm = args[1]
     hx = lr.X * theta.T
     for i in range(0, hx.shape[0]):
         hx[i, 0] = lr._sigmoid(hx[i, 0])
@@ -27,7 +28,16 @@ def _obj_func(x0, *args):
         assert 1.0 - hx[i, 0] > 0
 
         J += lr.y[i, 0] * math.log(hx[i, 0]) + (1.0 - lr.y[i, 0]) * math.log(1.0 - hx[i, 0])
-    J = -1.0 / lr.n * J + lr.Lambda / (2.0 * lr.n) * (theta * theta.T)[0, 0]
+    if (norm == 'l2'):
+        J = -1.0 / lr.n * J + lr.Lambda / (2.0 * lr.n) * (theta * theta.T)[0, 0]
+    # l1 norm
+    else:
+        th_sum = 0.0
+        row, col = theta.shape
+        for i in range(0, row):
+            for j in range(0, col):
+                th_sum += math.fabs(theta[i, j])
+        J = -1.0 / lr.n * J + lr.Lambda / (2.0 * lr.n) * th_sum
     return J
 
 '''bfgs will call this function'''
@@ -36,13 +46,22 @@ def _fprime(x0, *args):
     theta = np.asmatrix(x0)
     lr = args[0]
     assert isinstance(lr, LogisticRegression)
+    norm = args[1]
     hx = lr.X * theta.T
     for i in range(0, hx.shape[0]):
         hx[i, 0] = lr._sigmoid(hx[i, 0])
     grad = np.zeros(x0.shape, x0.dtype)
     grad[0] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, 0])))
     for col in range(1, lr.m + 1):
-        grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) + lr.Lambda / lr.n * theta[0, col]
+        if (norm == 'l2'):
+            grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) + lr.Lambda / lr.n * theta[0, col]
+        else:
+            if (theta[0, col] > 0):
+                grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) + lr.Lambda / lr.n
+            elif (theta[0, col] < 0):
+                grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) - lr.Lambda / lr.n
+            else:
+                grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col])))
     return -grad
 
 class LogisticRegression(LinearModel):
@@ -112,15 +131,19 @@ class LogisticRegression(LinearModel):
 
     def fit(self, max_iter=None):
         if (self.penalty == 'l2'):
-            xopt, fopt, gopt, bopt, func, grad_calls, warnflag, allvecs = \
-                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((1, self.m + 1)), fprime=_fprime, args=(self,), maxiter=max_iter, full_output=1, retall=1)
-            print 'low cost: %f, func calls: %d' % (fopt, func)
+            res = \
+                scipy.optimize.fmin_bfgs(_obj_func, np.zeros((self.m + 1,)), fprime=_fprime, args=(self, 'l2'), maxiter=max_iter, full_output=1, retall=1)
+            xopt = res[0]
             flatten_theta = xopt.flatten()
             for idx in range(0, self.m + 1):
                 self.theta[0, idx] = flatten_theta[idx]
         # if not l2, treated as l1
         else:
-            pass
+            res = owlqn.fmin_owlqn(_obj_func, np.zeros((self.m + 1,)), fprime=_fprime, args=(self, 'l1'), maxiter=max_iter, full_output=1, retall=1)
+            xopt = res[0]
+            flatten_theta = xopt.flatten()
+            for idx in range(0, self.m + 1):
+                self.theta[0, idx] = flatten_theta[idx]
 
     '''gradient descent fit'''
     def gd_fit(self, alpha=0.01, max_iter=200, stop_diff=1e-6):

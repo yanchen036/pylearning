@@ -18,6 +18,7 @@ import numpy
 from numpy import atleast_1d, eye, mgrid, argmin, zeros, shape, \
      squeeze, isscalar, vectorize, asarray, absolute, sqrt, Inf, asfarray
 from scipy import optimize
+from scipy.optimize import approx_fprime
 
 # Start of code copied from optimize.py
 # ------------------------------------------------------------

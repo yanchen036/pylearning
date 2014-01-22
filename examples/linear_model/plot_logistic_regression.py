@@ -62,7 +62,7 @@ pl.figure(2, figsize=(8, 6))
 pl.clf()
 pl.scatter(x1, y1, color='yellow', marker='o')
 pl.scatter(x2, y2, color='black', marker='+')
-model = LogisticRegression(mat_x, mat_y, Lambda=0.0)
+model = LogisticRegression(mat_x, mat_y, penalty='l2', Lambda=0.1)
 model.fit(max_iter=50)
 print model.theta
 X_test = np.linspace(30, 100, 70)
