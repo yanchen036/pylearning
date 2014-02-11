@@ -28,7 +28,7 @@ def _obj_func(x0, *args):
         assert 1.0 - hx[i, 0] > 0
 
         J += lr.y[i, 0] * math.log(hx[i, 0]) + (1.0 - lr.y[i, 0]) * math.log(1.0 - hx[i, 0])
-    if (norm == 'l2'):
+    if norm == 'l2':
         J = -1.0 / lr.n * J + lr.Lambda / (2.0 * lr.n) * (theta * theta.T)[0, 0]
     # l1 norm
     else:
@@ -53,12 +53,12 @@ def _fprime(x0, *args):
     grad = np.zeros(x0.shape, x0.dtype)
     grad[0] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, 0])))
     for col in range(1, lr.m + 1):
-        if (norm == 'l2'):
+        if norm == 'l2':
             grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) + lr.Lambda / lr.n * theta[0, col]
         else:
-            if (theta[0, col] > 0):
+            if theta[0, col] > 0:
                 grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) + lr.Lambda / lr.n
-            elif (theta[0, col] < 0):
+            elif theta[0, col] < 0:
                 grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col]))) - lr.Lambda / lr.n
             else:
                 grad[col] = 1.0 / lr.n * np.sum((np.asarray(hx - lr.y) * np.asarray(lr.X[:, col])))
@@ -93,9 +93,9 @@ class LogisticRegression(LinearModel):
 
     def _sigmoid(self, z):
         # avoid large number
-        if (z <= -20.0):
+        if z <= -20.0:
             z = -20.0
-        if (z >= 30.0):
+        if z >= 30.0:
             z = 30.0
         return 1.0 / (1 + math.exp(-z))
 
@@ -106,9 +106,9 @@ class LogisticRegression(LinearModel):
             hx[i, 0] = self._sigmoid(hx[i, 0])
         J = 0.0
         for i in range(0, self.n):
-            if (hx[i, 0] <= 0.0):
+            if hx[i, 0] <= 0.0:
                 hx[i, 0] = 1e-9
-            elif (hx[i, 0] >= 1.0):
+            elif hx[i, 0] >= 1.0:
                 hx[i, 0] = 0.999999
             assert hx[i, 0] > 0
             assert 1.0 - hx[i, 0] > 0
@@ -130,7 +130,7 @@ class LogisticRegression(LinearModel):
         return grad
 
     def fit(self, max_iter=None):
-        if (self.penalty == 'l2'):
+        if self.penalty == 'l2':
             res = \
                 scipy.optimize.fmin_bfgs(_obj_func, np.zeros((self.m + 1,)), fprime=_fprime, args=(self, 'l2'), maxiter=max_iter, full_output=1, retall=1)
             xopt = res[0]
@@ -159,11 +159,11 @@ class LogisticRegression(LinearModel):
         '''
         J_history = []
         for iter in range(0, max_iter):
-            if (iter >= max_iter):
+            if iter >= max_iter:
                 break
             self.theta -= alpha * self._calc_gradient()
             J_history.append(self._cost())
-            if (iter > 0 and J_history[-2] - J_history[-1] <= stop_diff):
+            if iter > 0 and J_history[-2] - J_history[-1] <= stop_diff:
                 print 'objective function value descent less than stop_diff or less than 0'
                 break
         return J_history

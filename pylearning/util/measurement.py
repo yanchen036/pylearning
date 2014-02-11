@@ -13,20 +13,20 @@ def ROC(pg_arr):
     assert isinstance(pg_arr, list)
     for pg in pg_arr:
         assert isinstance(pg, pred_gnd)
-    if (pg_arr.__len__() == 0):
+    if pg_arr.__len__() == 0:
         return list()
     ret = [[0.0, 0.0]]
     for i in range(99, 0, -1):
         threshold = float(i) / 100
         tp, fp, fn, tn = 0.0, 0.0, 0.0, 0.0
         for pg in pg_arr:
-            if (pg.pred >= threshold):
-                if (pg.gnd == 0):
+            if pg.pred >= threshold:
+                if pg.gnd == 0:
                     fp += 1
                 else:
                     tp += 1
             else:
-                if (pg.gnd == 0):
+                if pg.gnd == 0:
                     tn += 1
                 else:
                     fn += 1
