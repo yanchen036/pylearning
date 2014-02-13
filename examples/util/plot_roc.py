@@ -5,12 +5,12 @@ import random
 import pylab as pl
 from pylearning.util import measurement
 
-gn_arr = []
+gnr_arr = []
 for i in range(0, 500):
-    gn_arr.append(measurement.pred_gnd(random.uniform(0, 1), 1))
+    gnr_arr.append(measurement.pred_gnd(random.uniform(0, 1), 1, 0))
 for i in range(0, 500):
-    gn_arr.append(measurement.pred_gnd(random.uniform(0, 1), 0))
-roc = measurement.ROC(gn_arr)
+    gnr_arr.append(measurement.pred_gnd(random.uniform(0, 1), 0, 0))
+roc = measurement.ROC(gnr_arr)
 print measurement.AUC(roc)
 tpr = []
 fpr = []
