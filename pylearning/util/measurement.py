@@ -37,15 +37,17 @@ def ROC(pgr_arr):
     ret.append([1.0, 1.0])
     return ret
 
+# auc is equal to Wilcoxon-Mann-Witney Test
+#  ref: http://blog.csdn.net/chjjunking/article/details/5933105
 def AUC(pgr_arr):
     assert isinstance(pgr_arr, list)
     for pgr in pgr_arr:
         assert isinstance(pgr, Pgr)
     if pgr_arr.__len__() == 0:
         return 0.0
-    pgr_arr = sorted(pgr_arr, key=attrgetter(pred), reverse=True)
+    pgr_arr = sorted(pgr_arr, key=attrgetter('pred'), reverse=True)
     # rank
-    for i, item in enumerate(triple):
+    for i, item in enumerate(pgr_arr):
         item.rank = pgr_arr.__len__() - i
     # for same predict, average their rank
     start, end = 0, 0
