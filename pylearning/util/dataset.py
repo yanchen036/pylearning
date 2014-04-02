@@ -21,7 +21,7 @@ class Dataset():
     def get_ins_len(self):
         return len(self._data)
 
-    def get_spec_fea_val_domain(self, feaidx):
+    def get_fea_val_domain(self, feaidx):
         return self._feaset[feaidx]
 
     def get_fea_num(self):
