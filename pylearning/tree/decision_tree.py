@@ -10,6 +10,7 @@ class Node():
         self.children_split_val = []
         self.data = []
         self.split_fea_idx = None
+        self.split_infogain_ratio = 0.0
         self._label = None
         self.is_leaf = False
 
@@ -17,16 +18,17 @@ class Node():
         assert self.data != None
         max_ratio = 0.
         sp_fea = None
-        for feaidx in range(0, self.dataset.fea_num):
+        for feaidx in range(0, dataset.fea_num):
             ratio = self.calc_infogain_ratio(feaidx, dataset)
             if ratio > max_ratio:
                 max_ratio = ratio
                 sp_fea = feaidx
         self.split_fea_idx = sp_fea
+        self.split_infogain_ratio = max_ratio
         if max_ratio >= eps:
             for idx in self.data:
                 ins = dataset.get_ins(idx)
-                if ins.fea[self.split_fea_idx] in self.children_feaval:
+                if ins.fea[self.split_fea_idx] in self.children_split_val:
                     chidx = self.children_split_val.index(ins.fea[self.split_fea_idx])
                     self.children[chidx].data.append(idx)
                 else:
@@ -93,7 +95,7 @@ class DTree():
     def initialize(self, dataset):
         self._dataset = dataset
         self._root = Node()
-        self._root.data = range(0, self._dataset.getsize())
+        self._root.data = range(0, self._dataset.ins_num)
 
     def train(self, eps=0.1):
         st = [self._root]
@@ -108,7 +110,7 @@ class DTree():
             if len(ld) <= 1:
                 cur.is_leaf = True
                 continue
-            cur.split(self._dataset)
+            cur.split(self._dataset, eps)
             if len(cur.children) == 0:
                 cur.is_leaf = True
             for i in range(0, len(cur.children)):
