@@ -22,11 +22,11 @@ class Dataset():
             fea = []
             for i in xrange(0, len(fea_s)):
                 _,val = fea_s[i].split(':')
-                fea.append(float(val))
+                fea.append(int(val))
                 if i in self._feaset:
-                    self._feaset[i].add(float(val))
+                    self._feaset[i].add(int(val))
                 else:
-                    self._feaset[i] = set([i])
+                    self._feaset[i] = set([int(val)])
             ins = Instance(label, fea)
             self._data.append(ins)
         fp.close()

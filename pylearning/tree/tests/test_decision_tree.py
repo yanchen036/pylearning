@@ -20,6 +20,9 @@ class DecisionTreeTestCase(unittest.TestCase):
     def test_calc_infogain_ratio(self):
         self.assertAlmostEqual(self.node.calc_infogain_ratio(0, self.dataset), 0.083/0.971, places=4)
 
+    def test_get_label(self):
+        self.assertEqual(self.node.get_label(self.dataset), '1')
+
     def test_train(self):
         self.t.train()
         self.assertEqual(self.t._root.split_fea_idx, 2)
@@ -31,6 +34,7 @@ class DecisionTreeTestCase(unittest.TestCase):
         self.assertEqual(self.t._root.children[0].is_leaf, False)
         self.assertEqual(self.t._root.children[0].children[0].is_leaf, True)
         self.assertEqual(self.t._root.children[0].children[1].is_leaf, True)
+        #print self.t.serialize()
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ class Node():
         self.data = []
         self.split_fea_idx = None
         self.split_infogain_ratio = 0.0
-        self._label = None
+        self.label = None
         self.is_leaf = False
 
     def split(self, dataset, eps):
@@ -26,6 +26,9 @@ class Node():
         self.split_fea_idx = sp_fea
         self.split_infogain_ratio = max_ratio
         if max_ratio >= eps:
+            for feaval in dataset.get_fea_val_domain(self.split_fea_idx):
+                self.children_split_val.append(feaval)
+                self.children.append(Node())
             for idx in self.data:
                 ins = dataset.get_ins(idx)
                 if ins.fea[self.split_fea_idx] in self.children_split_val:
@@ -47,7 +50,7 @@ class Node():
         return label_dict
 
     def get_label(self, dataset):
-        if self._label is None:
+        if self.label is None:
             label_dict = self.calc_label_dict(dataset)
             max_cnt = 0
             max_label = None
@@ -55,8 +58,8 @@ class Node():
                 if cnt > max_cnt:
                     max_cnt = cnt
                     max_label = l
-            self._label = max_label
-        return self._label
+            self.label = max_label
+        return self.label
 
     def calc_infogain_ratio(self, fea_x, dataset):
         d = len(self.data)
@@ -115,3 +118,42 @@ class DTree():
                 cur.is_leaf = True
             for i in range(0, len(cur.children)):
                 st.append(cur.children[i])
+
+    def predict(self, ins):
+        assert isinstance(ins, Instance)
+        cur = self._root
+        while True:
+            if cur.is_leaf:
+                break
+            for i in xrange(0, len(cur.children_split_val)):
+                if ins.fea[cur.split_fea_idx] == cur.children_split_val[i]:
+                    cur = cur.children[i]
+                    break
+        return cur.get_label(self._dataset)
+
+    def serialize(self):
+        model = ''
+        st = [self._root]
+        while len(st) > 0:
+            cur = st.pop()
+
+            fea_idx = '_'
+            if cur.split_fea_idx:
+                fea_idx = str(cur.split_fea_idx)
+            val_list = ''
+            for v in cur.children_split_val:
+                val_list += str(v) + ','
+            val_list = val_list[0:-1]
+            leaf = '0'
+            label = '_'
+            if cur.is_leaf:
+                leaf = '1'
+                label = str(cur.get_label(self._dataset))
+                val_list = '_'
+
+            # format
+            # is_leaf:label:split_fea:val1,val2,...;
+            model +=  leaf + ':' + label +':' + fea_idx + ':' + val_list + ';'
+            for node in cur.children:
+                st.append(node)
+        return model
