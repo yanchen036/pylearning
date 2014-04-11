@@ -34,7 +34,13 @@ class DecisionTreeTestCase(unittest.TestCase):
         self.assertEqual(self.t._root.children[0].is_leaf, False)
         self.assertEqual(self.t._root.children[0].children[0].is_leaf, True)
         self.assertEqual(self.t._root.children[0].children[1].is_leaf, True)
-        #print self.t.serialize()
+
+    def test_serialize(self):
+        self.t.train()
+        s =  self.t.serialize()
+        self.t.deserialize(s)
+        d =  self.t.serialize()
+        self.assertEqual(s, d)
 
 
 if __name__ == '__main__':

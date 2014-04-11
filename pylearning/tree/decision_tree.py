@@ -157,3 +157,32 @@ class DTree():
             for node in cur.children:
                 st.append(node)
         return model
+
+    def deserialize(self, model_s):
+        nodes = model_s.strip().split(';')
+        if len(nodes) == 0:
+            return None
+        cur = Node()
+        root = cur
+        st = [cur]
+        idx = 0
+        while len(st) > 0:
+            cur = st.pop()
+            s = nodes[idx]
+            leaf,label,fea_idx,val_list = s.split(':')
+            if leaf == '1':
+                cur.is_leaf = True
+            else:
+                cur.is_leaf = False
+            if label != '_':
+                cur.label = label
+            if fea_idx != '_':
+                cur.split_fea_idx = int(fea_idx)
+            if val_list != '_':
+                chlds = val_list.split(',')
+                for i in xrange(0, len(chlds)):
+                    cur.children.append(Node())
+                    cur.children_split_val.append(int(chlds[i]))
+                    st.append(cur.children[i])
+            idx += 1
+        self._root = root
